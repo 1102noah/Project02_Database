@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Dashboard</title>
+    <link rel="stylesheet" href="stylesheet.css">
+</head>
+<body>
+    <h1>Welcome, <span id="clientName"></span>!</h1>
+    <p>Email: <span id="clientEmail"></span></p>
+    <p>Address: <span id="clientAddress"></span></p>
+
+    <div class="button-container">
+        <button onclick="window.location.href='RequestQuote.html';">Request Quote</button>
+        <button onclick="window.location.href='QuoteManagement.html';">Quote Management</button>
+        <button onclick="window.location.href='ViewBills.html';">View Bills and Status</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('http://localhost:5050/getClientData', {
+                    method: 'GET',
+                    credentials: 'include' // Ensure session cookies are included
+                });
+
+                if (response.ok) {
+                    const clientData = await response.json();
+                    document.getElementById('clientName').textContent = `${clientData.firstName} ${clientData.lastName}`;
+                    document.getElementById('clientEmail').textContent = clientData.email;
+                    document.getElementById('clientAddress').textContent = clientData.address;
+                } else if (response.status === 401) {
+                    console.error('Unauthorized access: Session expired or invalid.');
+                    alert('Session expired or unauthorized. Redirecting to login.');
+                    window.location.href = 'Signin.html'; // Redirect to sign-in page
+                } else                {
+                    const errorText = await response.text();
+                    console.error('Error fetching client data:', errorText);
+                    alert('Failed to fetch client data. Check console for details.');
+                }
+            } catch (error) {
+                console.error('Network error or unable to fetch client data:', error);
+                alert('Network error or unable to fetch client data. Check console for details.');
+            }
+        });
+    </script>
+</body>
+</html>
+
